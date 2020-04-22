@@ -61,28 +61,34 @@ class MakeIconCommand extends Command
 
         //Step1: Image creation
         $image     = imagecreatetruecolor($this->width, $this->height);
-        imagealphablending($image,false);
-        imageantialias($image, false);
+        imageantialias($image, true);
 
         //Step2: transparency
         $transparent = imagecolorallocatealpha($image,255,255,255,127);
         imagefill($image, 0, 0, $transparent);
 
-//        //Step3: Shadow Circle
+        //Step3: Shadow Circle
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0,90);
+        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 10.5, $this->height -10.5, $shadow);
+        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
 
-//
-//        //Step4: White Circle
+        //Step4: White Circle
         $white = imagecolorallocate($image, 255, 255, 255);
         imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 10, $this->height -10, $white);
 
-        //        //Step5: Gray Circle
+        //Step5: Gray Circle
+        $gray = imagecolorallocate($image, 200, 200, 200);
+        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 16, $this->height -16, $gray);
 
-//
-//        //Step6: Icon
-////        $blue = imagecolorallocate($image, 0, 0, 255);
-////        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 2, 0);
-////        imagettftext ( $image , $this->width / 2, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
-////        imagealphablending($image,true);
+        //Step7: Shadow Icon
+        $black = imagecolorallocate($image, 0, 0, 0);
+        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
+        imagettftext ( $image , $this->width / 3, 0, $x, $y, $black, $this->getFontFilename(),  $this->getSymbol());
+        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+
+        //Step7: White Icon
+        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
+        imagettftext ( $image , $this->width / 3, 0, $x, $y, $white, $this->getFontFilename(),  $this->getSymbol());
 
         header("Content-type: image/png");
         imagesavealpha($image, true);
