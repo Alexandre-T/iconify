@@ -59,16 +59,24 @@ class MakeIconCommand extends Command
         $io->note(sprintf('Your file will be store here: %s', $filename));
         $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
+        //Step1: Image creation
         $image     = imagecreatetruecolor($this->width, $this->height);
         imagealphablending($image,false);
 
+        //Step2: transparency
         $transparent =imagecolorallocatealpha($image,255,255,255,127);
-        imagefilledrectangle($image, 0, 0, 32, 32, $transparent);
+        imagefilledrectangle($image, 0, 0, $this->width, $this->height, $transparent);
         imagealphablending($image,true);
 
+        //Step3: Shadow Circle
+
+        //Step4: White Circle
+        //Step5: Gray Circle
+
+        //Step6: Icon
         $blue = imagecolorallocate($image, 0, 0, 255);
-        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), 16, 0);
-        imagettftext ( $image , 16, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
+        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 2, 0);
+        imagettftext ( $image , $this->width / 2, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
 
         header("Content-type: image/png");
         imagepng($image, $filename, 0);
