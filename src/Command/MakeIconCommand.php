@@ -65,12 +65,13 @@ class MakeIconCommand extends Command
 
         //Step2: transparency
         $transparent =imagecolorallocatealpha($image,255,255,255,127);
-        imagefilledrectangle($image, 0, 0, $this->width, $this->height, $transparent);
+        imagefill($image, 0, 0, $transparent);
 
 //        //Step3: Shadow Circle
 //
 //        //Step4: White Circle
 //        //Step5: Gray Circle
+
 //
 //        //Step6: Icon
 ////        $blue = imagecolorallocate($image, 0, 0, 255);
