@@ -27,7 +27,6 @@ class MakeIconCommand extends Command
     private string $nature = self::DEFAULT_NATURE;
     private int $width = 32;
     private int $height = 32;
-    private string $font = '';
 
     /**
      * Configuration.
@@ -54,7 +53,6 @@ class MakeIconCommand extends Command
         $this->name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
         $this->nature = $this->getNature($input->getOption('nature'));
         $filename = __DIR__ ."/../../public/output/{$this->name}.png";
-        //TODO add an extension as an option
 
         $io->note(sprintf('You passed an argument: %s', $this->name));
         $io->note(sprintf('You have choose the style: %s', $this->nature));
@@ -113,48 +111,15 @@ class MakeIconCommand extends Command
         }
     }
 
-    /**
-     * Get offsets.
-     *
-     * @return array|float[]|int[]
-     */
-    private function getOffsets(): array
-    {
-        //Find the font height
-        $fontHeight = imagefontheight($this->getFont()) * 2; //Why * 2 ????
-        //Find the font width
-        $fontWidth = imagefontwidth($this->getFont());
-
-        return [
-            ($this->height - $fontHeight) / 2,
-            ($this->width - $fontWidth) / 2,
-        ];
-    }
-
-    /**
-     * Get the font.
-     *
-     * Load it if necessary.
-     */
-    private function getFont(): int
-    {
-        if (empty($this->font)) {
-            $this->font = imageloadfont($this->getFontFilename());
-        }
-
-        if (false === $this->font) {
-            throw new \InvalidArgumentException(sprintf('Font %s unavailable', $this->getFontFilename()));
-        }
-
-        return $this->font;
-    }
-
     private function getSymbol(): string
     {
         //FIXME To complete.
         return "&#xf187;";
     }
 
+    /**
+     * Return the center of image
+     */
     private function imageCenter($image, string $text, string $font, int $size, int $angle = 0)
     {
         $xi = imagesx($image);
