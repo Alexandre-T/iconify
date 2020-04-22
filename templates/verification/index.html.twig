@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello VerificationController!{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Icons</h1>
+
+    {% if icons|length <=  0  %}
+        <p>No icon have been created. Use symfony console app:make:icon <em>--help</em> to get help.</p>
+    {% else %}
+        {% for icon in icons %}
+            <img src="{{ asset('output/' ~ icon) }}" class="block" />
+        {% endfor%}
+    {% endif %}
+</div>
+{% endblock %}
