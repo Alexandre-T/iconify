@@ -23,6 +23,11 @@ class MakeIconCommand extends Command
 
     protected static $defaultName = 'app:make:icon';
 
+    private string $name = 'toto';
+    private string $nature = self::DEFAULT_NATURE;
+    private int $width = 32;
+    private int $height = 32;
+
     /**
      * Configuration.
      */
@@ -32,6 +37,7 @@ class MakeIconCommand extends Command
             ->setDescription('Create an icon from its font awesome name.')
             ->addArgument('name', InputArgument::REQUIRED, 'Font awesome name')
             ->addOption('nature', null, InputOption::VALUE_OPTIONAL, 'Brand (b), regular (r) or solid (s)', self::DEFAULT_NATURE)
+            //TODO add a size as an option
         ;
     }
 
@@ -47,7 +53,6 @@ class MakeIconCommand extends Command
         $name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
         $nature = $this->getNature($input->getOption('nature'));
         $filename = __DIR__ ."/../../public/output/$name.png";
-        $width = $height = 32; //TODO add a size as an option
         //TODO add an extension as an option
 
         $io->note(sprintf('You passed an argument: %s', $name));
@@ -55,15 +60,12 @@ class MakeIconCommand extends Command
         $io->note(sprintf('Your file will be store here: %s', $filename));
 
         header("Content-type: image/png");
-        //FIXME call the police
+        //FIXME call the good police
         $string = 'P';//FIXME call the name associated char
-        $im     = imagecreatetruecolor($width, $height);
-        $orange = imagecolorallocate($im, 220, 210, 60);
-        $black = imagecolorallocate($im, 0, 0, 0);
+        $im     = imagecreatetruecolor($this->width, $this->height);
         $white = imagecolorallocate($im, 255, 255, 255);
-        $px     = ($width - 6) / 2;
-        $py     = ($height - 12) / 2;
-        imagestring($im, 3, $px, $py, $string, $white);
+        list($x, $y) = $this->getOffsets();
+        imagestring($im, 3, $x, $y, $string, $white);
         imagepng($im, $filename, 0);
         imagedestroy($im);
 
@@ -87,5 +89,18 @@ class MakeIconCommand extends Command
             default:
                 return self::DEFAULT_NATURE;
         }
+    }
+
+    private function getOffsets(): array
+    {
+        //Find the font height
+        $fontHeight = imagefontheight(3) * 2; //Why * 2 ????
+        //Find the font width
+        $fontWidth = imagefontwidth(3);
+
+        return [
+            ($this->height - $fontHeight) / 2,
+            ($this->width - $fontWidth) / 2,
+        ];
     }
 }
