@@ -25,8 +25,8 @@ class MakeIconCommand extends Command
 
     private string $name = 'toto';
     private string $nature = self::DEFAULT_NATURE;
-    private int $width = 32;
-    private int $height = 32;
+    private int $width = 72;
+    private int $height = 72;
 
     /**
      * Configuration.
@@ -62,15 +62,20 @@ class MakeIconCommand extends Command
         //Step1: Image creation
         $image     = imagecreatetruecolor($this->width, $this->height);
         imagealphablending($image,false);
+        imageantialias($image, false);
 
         //Step2: transparency
-        $transparent =imagecolorallocatealpha($image,255,255,255,127);
+        $transparent = imagecolorallocatealpha($image,255,255,255,127);
         imagefill($image, 0, 0, $transparent);
 
 //        //Step3: Shadow Circle
+
 //
 //        //Step4: White Circle
-//        //Step5: Gray Circle
+        $white = imagecolorallocate($image, 255, 255, 255);
+        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 10, $this->height -10, $white);
+
+        //        //Step5: Gray Circle
 
 //
 //        //Step6: Icon
