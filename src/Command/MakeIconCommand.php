@@ -66,19 +66,20 @@ class MakeIconCommand extends Command
         //Step2: transparency
         $transparent =imagecolorallocatealpha($image,255,255,255,127);
         imagefilledrectangle($image, 0, 0, $this->width, $this->height, $transparent);
-        imagealphablending($image,true);
 
-        //Step3: Shadow Circle
-
-        //Step4: White Circle
-        //Step5: Gray Circle
-
-        //Step6: Icon
-        $blue = imagecolorallocate($image, 0, 0, 255);
-        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 2, 0);
-        imagettftext ( $image , $this->width / 2, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
+//        //Step3: Shadow Circle
+//
+//        //Step4: White Circle
+//        //Step5: Gray Circle
+//
+//        //Step6: Icon
+////        $blue = imagecolorallocate($image, 0, 0, 255);
+////        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 2, 0);
+////        imagettftext ( $image , $this->width / 2, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
+////        imagealphablending($image,true);
 
         header("Content-type: image/png");
+        imagesavealpha($image, true);
         imagepng($image, $filename, 0);
         imagedestroy($image);
 
