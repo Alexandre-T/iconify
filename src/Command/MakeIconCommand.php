@@ -57,47 +57,16 @@ class MakeIconCommand extends Command
         $io->note(sprintf('You have choose the style: %s', $this->nature));
         $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
-        //Step1: Image creation
-        $image     = imagecreatetruecolor($this->size, $this->size);
-        imageantialias($image, true);
+        $this->createIdleIcon();
+        $io->note(sprintf('The idle icon is created: %s', $this->getIdleFilename()));
 
-        //Step2: transparency
-        $transparent = imagecolorallocatealpha($image,255,255,255,127);
-        imagefill($image, 0, 0, $transparent);
+//        $this->createHoverIcon();
+//        $io->note(sprintf('The hover icon is created: %s', $this->getHoverFilename()));
+//
+//        $this->createInsensitiveIcon();
+//        $io->note(sprintf('The hover icon is created: %s', $this->getInsentiveFilename()));
 
-        //Step3: Shadow Circle
-        $shadow = imagecolorallocatealpha($image, 0, 0, 0,90);
-        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 105, $this->size -105, $shadow);
-        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
-
-        //Step4: White Circle
-        $white = imagecolorallocate($image, 255, 255, 255);
-        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 100, $this->size -100, $white);
-
-        //Step5: Gray Circle
-        $gray = imagecolorallocate($image, 200, 200, 200);
-        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 160, $this->size -160, $gray);
-
-        //Step7: Image resized
-        $smallImage = imagecreatetruecolor($this->finalSize, $this->finalSize);
-        imagefill($smallImage, 0, 0, $transparent);
-        imageantialias($smallImage, true);
-        imagecopyresampled($smallImage, $image, 0, 0, 0, 0, $this->finalSize, $this->finalSize, $this->size, $this->size);
-        imagedestroy($image);
-        unset($image);
-
-        //Step7: White Icon
-        list($x, $y) = $this->imageCenter($smallImage, $this->getSymbol(), $this->getFontFilename(), $this->finalSize / 3, 0);
-        imagettftext ( $smallImage , $this->finalSize / 3, 0, $x, $y, $white, $this->getFontFilename(),  $this->getSymbol());
-
-        header("Content-type: image/png");
-        imagesavealpha($smallImage, true);
-
-        $filename = __DIR__ ."/../../public/output/{$this->name}.png";
-        imagepng($smallImage, $filename, 0);
-        imagedestroy($smallImage);
-
-        $io->success(sprintf('Well done! Your file was stored here: %s', $filename));
+        $io->success('Well done! Your file were created in output directory');
 
         return 0;
     }
@@ -157,6 +126,62 @@ class MakeIconCommand extends Command
         $y = intval(($yi + $yr) / 2);
 
         return array($x, $y);
+    }
+
+    /**
+     * Filename for idle icon.
+     */
+    private function getIdleFilename()
+    {
+        return __DIR__ ."/../../public/output/{$this->name}_idle.png";
+    }
+
+    /**
+     * Create the icon with the idle status.
+     */
+    private function createIdleIcon()
+    {
+        //Step1: Image creation
+        $image     = imagecreatetruecolor($this->size, $this->size);
+        imageantialias($image, true);
+
+        //Step2: transparency
+        $transparent = imagecolorallocatealpha($image,255,255,255,127);
+        imagefill($image, 0, 0, $transparent);
+
+        //Step3: Shadow Circle
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0,90);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 105, $this->size -105, $shadow);
+        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+
+        //Step4: White Circle
+        $white = imagecolorallocate($image, 255, 255, 255);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 100, $this->size -100, $white);
+
+        //Step5: Gray Circle
+        $gray = imagecolorallocate($image, 200, 200, 200);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 160, $this->size -160, $gray);
+
+        //Step6: Image resized
+        $smallImage = imagecreatetruecolor($this->finalSize, $this->finalSize);
+        $transparent = imagecolorallocatealpha($smallImage,255,255,255,127);
+        imagefill($smallImage, 0, 0, $transparent);
+        imageantialias($smallImage, true);
+        imagesavealpha($smallImage, true);
+        imagecopyresampled($smallImage, $image, 0, 0, 0, 0, $this->finalSize, $this->finalSize, $this->size, $this->size);
+
+        //memory
+        imagedestroy($image);
+        unset($image, $white, $gray, $shadow, $black);
+
+        //Step7: Icons color
+//        $white = imagecolorallocate($smallImage, 255, 255, 255);
+//        $nuancedGray = imagecolorallocate($smallImage, 220, 220, 220);
+        $nuancedWhite = imagecolorallocate($smallImage, 230, 230, 230);
+        list($x, $y) = $this->imageCenter($smallImage, $this->getSymbol(), $this->getFontFilename(), $this->finalSize / 3, 0);
+        imagettftext ( $smallImage , $this->finalSize / 3, 0, $x, $y, $nuancedWhite, $this->getFontFilename(),  $this->getSymbol());
+        imagepng($smallImage, $this->getIdleFilename(), 0);
+        imagedestroy($smallImage);
     }
 
 }
