@@ -27,6 +27,7 @@ class MakeIconCommand extends Command
     private string $nature = self::DEFAULT_NATURE;
     private int $width = 32;
     private int $height = 32;
+    private string $font = '';
 
     /**
      * Configuration.
@@ -50,22 +51,24 @@ class MakeIconCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
-        $nature = $this->getNature($input->getOption('nature'));
-        $filename = __DIR__ ."/../../public/output/$name.png";
+        $this->name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
+        $this->nature = $this->getNature($input->getOption('nature'));
+        $filename = __DIR__ ."/../../public/output/{$this->name}.png";
         //TODO add an extension as an option
 
-        $io->note(sprintf('You passed an argument: %s', $name));
-        $io->note(sprintf('You have choose the style: %s', $nature));
+        $io->note(sprintf('You passed an argument: %s', $this->name));
+        $io->note(sprintf('You have choose the style: %s', $this->nature));
         $io->note(sprintf('Your file will be store here: %s', $filename));
+        $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
         header("Content-type: image/png");
         //FIXME call the good police
         $string = 'P';//FIXME call the name associated char
         $im     = imagecreatetruecolor($this->width, $this->height);
         $white = imagecolorallocate($im, 255, 255, 255);
-        list($x, $y) = $this->getOffsets();
-        imagestring($im, 3, $x, $y, $string, $white);
+        $blue = imagecolorallocate($im, 0, 0, 255);
+        imagefilledrectangle($im, 0, 0, 32, 32, $white);
+        imagettftext ( $im , 16, 0, 8, 8, $blue, $this->getFontFilename(), $string);
         imagepng($im, $filename, 0);
         imagedestroy($im);
 
@@ -73,7 +76,6 @@ class MakeIconCommand extends Command
 
         return 0;
     }
-
     /**
      * Nature filter.
      *
@@ -91,16 +93,55 @@ class MakeIconCommand extends Command
         }
     }
 
+    /**
+     * Get the font.
+     */
+    private function getFontFilename(): string
+    {
+        $directory = __DIR__ . '/../../public/font';
+        switch ($this->nature) {
+            case self::BRAND:
+                return $directory . '/fa-brands-400.ttf';
+            case self::REGULAR:
+                return $directory . '/fa-regular-400.ttf';
+            default:
+                return $directory . '/fa-solid-900.ttf';
+        }
+    }
+
+    /**
+     * Get offsets.
+     *
+     * @return array|float[]|int[]
+     */
     private function getOffsets(): array
     {
         //Find the font height
-        $fontHeight = imagefontheight(3) * 2; //Why * 2 ????
+        $fontHeight = imagefontheight($this->getFont()) * 2; //Why * 2 ????
         //Find the font width
-        $fontWidth = imagefontwidth(3);
+        $fontWidth = imagefontwidth($this->getFont());
 
         return [
             ($this->height - $fontHeight) / 2,
             ($this->width - $fontWidth) / 2,
         ];
+    }
+
+    /**
+     * Get the font.
+     *
+     * Load it if necessary.
+     */
+    private function getFont(): int
+    {
+        if (empty($this->font)) {
+            $this->font = imageloadfont($this->getFontFilename());
+        }
+
+        if (false === $this->font) {
+            throw new \InvalidArgumentException(sprintf('Font %s unavailable', $this->getFontFilename()));
+        }
+
+        return $this->font;
     }
 }
