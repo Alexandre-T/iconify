@@ -63,12 +63,13 @@ class MakeIconCommand extends Command
 
         header("Content-type: image/png");
         //FIXME call the good police
-        $string = 'P';//FIXME call the name associated char
+        $string = "\uf187";//FIXME call the name associated char
         $im     = imagecreatetruecolor($this->width, $this->height);
-        $white = imagecolorallocate($im, 255, 255, 255);
+        $gray = imagecolorallocate($im, 100, 100, 100);
         $blue = imagecolorallocate($im, 0, 0, 255);
-        imagefilledrectangle($im, 0, 0, 32, 32, $white);
-        imagettftext ( $im , 16, 0, 8, 8, $blue, $this->getFontFilename(), $string);
+        imagefilledrectangle($im, 0, 0, 32, 32, $gray);
+        list($x, $y) = $this->imageCenter($im, $this->getSymbol(), $this->getFontFilename(), 16, 0);
+        imagettftext ( $im , 16, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
         imagepng($im, $filename, 0);
         imagedestroy($im);
 
@@ -144,4 +145,27 @@ class MakeIconCommand extends Command
 
         return $this->font;
     }
+
+    private function getSymbol(): string
+    {
+        //FIXME To complete.
+        return "&#xf187;";
+    }
+
+    private function imageCenter($image, string $text, string $font, int $size, int $angle = 0)
+    {
+        $xi = imagesx($image);
+        $yi = imagesy($image);
+
+        $box = imagettfbbox($size, $angle, $font, $text);
+
+        $xr = abs(max($box[2], $box[4]));
+        $yr = abs(max($box[5], $box[7]));
+
+        $x = intval(($xi - $xr) / 2);
+        $y = intval(($yi + $yr) / 2);
+
+        return array($x, $y);
+    }
+
 }
