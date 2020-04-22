@@ -9,9 +9,11 @@
     {% if icons|length <=  0  %}
         <p>No icon have been created. Use symfony console app:make:icon <em>--help</em> to get help.</p>
     {% else %}
+        <ul>
         {% for icon in icons %}
-            <img src="{{ asset('output/' ~ icon) }}" class="block" />
+            <li><img src="{{ asset('output/' ~ icon) }}" class="block" /> {{ icon }}</li>
         {% endfor%}
+        </ul>
     {% endif %}
 </div>
 {% endblock %}
