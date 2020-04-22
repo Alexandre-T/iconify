@@ -61,17 +61,20 @@ class MakeIconCommand extends Command
         $io->note(sprintf('Your file will be store here: %s', $filename));
         $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
+        $image     = imagecreatetruecolor($this->width, $this->height);
+        imagealphablending($image,false);
+
+        $transparent =imagecolorallocatealpha($image,255,255,255,127);
+        imagefilledrectangle($image, 0, 0, 32, 32, $transparent);
+        imagealphablending($image,true);
+
+        $blue = imagecolorallocate($image, 0, 0, 255);
+        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), 16, 0);
+        imagettftext ( $image , 16, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
+
         header("Content-type: image/png");
-        //FIXME call the good police
-        $string = "\uf187";//FIXME call the name associated char
-        $im     = imagecreatetruecolor($this->width, $this->height);
-        $gray = imagecolorallocate($im, 100, 100, 100);
-        $blue = imagecolorallocate($im, 0, 0, 255);
-        imagefilledrectangle($im, 0, 0, 32, 32, $gray);
-        list($x, $y) = $this->imageCenter($im, $this->getSymbol(), $this->getFontFilename(), 16, 0);
-        imagettftext ( $im , 16, 0, $x, $y, $blue, $this->getFontFilename(),  $this->getSymbol());
-        imagepng($im, $filename, 0);
-        imagedestroy($im);
+        imagepng($image, $filename, 0);
+        imagedestroy($image);
 
         $io->success('Well done!');
 
