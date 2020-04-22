@@ -25,8 +25,8 @@ class MakeIconCommand extends Command
 
     private string $name = 'toto';
     private string $nature = self::DEFAULT_NATURE;
-    private int $width = 72;
-    private int $height = 72;
+    private int $finalSize = 72;
+    private int $size = 720;
 
     /**
      * Configuration.
@@ -58,7 +58,7 @@ class MakeIconCommand extends Command
         $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
         //Step1: Image creation
-        $image     = imagecreatetruecolor($this->width, $this->height);
+        $image     = imagecreatetruecolor($this->size, $this->size);
         imageantialias($image, true);
 
         //Step2: transparency
@@ -67,33 +67,35 @@ class MakeIconCommand extends Command
 
         //Step3: Shadow Circle
         $shadow = imagecolorallocatealpha($image, 0, 0, 0,90);
-        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 10.5, $this->height -10.5, $shadow);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 105, $this->size -105, $shadow);
         imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
 
         //Step4: White Circle
         $white = imagecolorallocate($image, 255, 255, 255);
-        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 10, $this->height -10, $white);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 100, $this->size -100, $white);
 
         //Step5: Gray Circle
         $gray = imagecolorallocate($image, 200, 200, 200);
-        imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 16, $this->height -16, $gray);
+        imagefilledellipse($image, $this->size /2, $this->size /2, $this->size - 160, $this->size -160, $gray);
 
-        //Step7: Shadow Icon
-//        $black = imagecolorallocate($image, 0, 0, 0);
-//        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
-//        imagettftext ( $image , $this->width / 3, 0, $x, $y, $black, $this->getFontFilename(),  $this->getSymbol());
-//        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+        //Step7: Image resized
+        $smallImage = imagecreatetruecolor($this->finalSize, $this->finalSize);
+        imagefill($smallImage, 0, 0, $transparent);
+        imageantialias($smallImage, true);
+        imagecopyresampled($smallImage, $image, 0, 0, 0, 0, $this->finalSize, $this->finalSize, $this->size, $this->size);
+        imagedestroy($image);
+        unset($image);
 
         //Step7: White Icon
-        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
-        imagettftext ( $image , $this->width / 3, 0, $x, $y, $white, $this->getFontFilename(),  $this->getSymbol());
+        list($x, $y) = $this->imageCenter($smallImage, $this->getSymbol(), $this->getFontFilename(), $this->finalSize / 3, 0);
+        imagettftext ( $smallImage , $this->finalSize / 3, 0, $x, $y, $white, $this->getFontFilename(),  $this->getSymbol());
 
         header("Content-type: image/png");
-        imagesavealpha($image, true);
+        imagesavealpha($smallImage, true);
 
         $filename = __DIR__ ."/../../public/output/{$this->name}.png";
-        imagepng($image, $filename, 0);
-        imagedestroy($image);
+        imagepng($smallImage, $filename, 0);
+        imagedestroy($smallImage);
 
         $io->success(sprintf('Well done! Your file was stored here: %s', $filename));
 
