@@ -44,11 +44,25 @@ class MakeIconCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $name = $input->getArgument('name');
+        $name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
         $nature = $this->getNature($input->getOption('nature'));
+        $filename = __DIR__ ."/../../public/output/$name.png";
+        $width = $height = 32; //TODO add a size as an option
+        //TODO add an extension as an option
 
         $io->note(sprintf('You passed an argument: %s', $name));
         $io->note(sprintf('You have choose the style: %s', $nature));
+        $io->note(sprintf('Your file will be store here: %s', $filename));
+
+        header("Content-type: image/png");
+        //FIXME call the police
+        $string = 'toto';//FIXME call the name associated char
+        $im     = imagecreate($width, $height);
+        $orange = imagecolorallocate($im, 220, 210, 60);
+        $px     = (imagesx($im) - 7.5 * strlen($string)) / 2;
+        imagestring($im, 3, $px, 9, $string, $orange);
+        imagepng($im, $filename);
+        imagedestroy($im);
 
         $io->success('Well done!');
 
