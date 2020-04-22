@@ -56,12 +56,15 @@ class MakeIconCommand extends Command
 
         header("Content-type: image/png");
         //FIXME call the police
-        $string = 'toto';//FIXME call the name associated char
-        $im     = imagecreate($width, $height);
+        $string = 'P';//FIXME call the name associated char
+        $im     = imagecreatetruecolor($width, $height);
         $orange = imagecolorallocate($im, 220, 210, 60);
-        $px     = (imagesx($im) - 7.5 * strlen($string)) / 2;
-        imagestring($im, 3, $px, 9, $string, $orange);
-        imagepng($im, $filename);
+        $black = imagecolorallocate($im, 0, 0, 0);
+        $white = imagecolorallocate($im, 255, 255, 255);
+        $px     = ($width - 6) / 2;
+        $py     = ($height - 12) / 2;
+        imagestring($im, 3, $px, $py, $string, $white);
+        imagepng($im, $filename, 0);
         imagedestroy($im);
 
         $io->success('Well done!');
