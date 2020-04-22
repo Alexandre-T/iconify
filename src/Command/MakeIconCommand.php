@@ -52,11 +52,9 @@ class MakeIconCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $this->name = filter_var ( $input->getArgument('name'), FILTER_SANITIZE_STRING);
         $this->nature = $this->getNature($input->getOption('nature'));
-        $filename = __DIR__ ."/../../public/output/{$this->name}.png";
 
         $io->note(sprintf('You passed an argument: %s', $this->name));
         $io->note(sprintf('You have choose the style: %s', $this->nature));
-        $io->note(sprintf('Your file will be store here: %s', $filename));
         $io->note(sprintf('The font used will be: %s', $this->getFontFilename()));
 
         //Step1: Image creation
@@ -81,10 +79,10 @@ class MakeIconCommand extends Command
         imagefilledellipse($image, $this->width /2, $this->height /2, $this->width - 16, $this->height -16, $gray);
 
         //Step7: Shadow Icon
-        $black = imagecolorallocate($image, 0, 0, 0);
-        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
-        imagettftext ( $image , $this->width / 3, 0, $x, $y, $black, $this->getFontFilename(),  $this->getSymbol());
-        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+//        $black = imagecolorallocate($image, 0, 0, 0);
+//        list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
+//        imagettftext ( $image , $this->width / 3, 0, $x, $y, $black, $this->getFontFilename(),  $this->getSymbol());
+//        imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
 
         //Step7: White Icon
         list($x, $y) = $this->imageCenter($image, $this->getSymbol(), $this->getFontFilename(), $this->width / 3, 0);
@@ -92,10 +90,12 @@ class MakeIconCommand extends Command
 
         header("Content-type: image/png");
         imagesavealpha($image, true);
+
+        $filename = __DIR__ ."/../../public/output/{$this->name}.png";
         imagepng($image, $filename, 0);
         imagedestroy($image);
 
-        $io->success('Well done!');
+        $io->success(sprintf('Well done! Your file was stored here: %s', $filename));
 
         return 0;
     }
